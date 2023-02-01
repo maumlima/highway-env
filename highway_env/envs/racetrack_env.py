@@ -209,7 +209,7 @@ class RacetrackEnv(AbstractEnv):
         self.road.vehicles.append(vehicle)
 
         # Other vehicles
-        for i in range(rng.integers(self.config["other_vehicles"])):
+        while len(self.road.vehicles) < self.config["other_vehicles"] + 1:
             random_lane_index = self.road.network.random_lane_index(rng)
             vehicle = IDMVehicle.make_on_lane(self.road, random_lane_index,
                                               longitudinal=rng.uniform(
