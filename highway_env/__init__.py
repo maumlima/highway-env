@@ -79,7 +79,8 @@ def register_highway_envs():
     # racetrack_env.py
     register(
         id='racetrack-v0',
-        entry_point='highway_env.envs:RacetrackEnv',
+        entry_point='highway_env_sub.highway_env.envs:RacetrackEnv',
+        
     )
 
     # roundabout_env.py
@@ -100,5 +101,5 @@ def register_highway_envs():
         id='u-turn-v0',
         entry_point='highway_env.envs:UTurnEnv'
     )
-
+print(1)
 register_highway_envs()
