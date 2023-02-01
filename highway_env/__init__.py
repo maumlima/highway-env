@@ -101,3 +101,4 @@ def register_highway_envs():
         entry_point='highway_env.envs:UTurnEnv'
     )
 
+register_highway_envs()
