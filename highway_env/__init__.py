@@ -101,4 +101,3 @@ def register_highway_envs():
         id='u-turn-v0',
         entry_point='highway_env.envs:UTurnEnv'
     )
-print("imported highway-env")
