@@ -53,7 +53,7 @@ class RacetrackEnv(AbstractEnv):
             
 
             "controlled_vehicles": 1,
-            "other_vehicles": 3,
+            "other_vehicles": 4,
             "screen_width": 600,
             "screen_height": 600,
             "centering_position": [0.5, 0.5],
