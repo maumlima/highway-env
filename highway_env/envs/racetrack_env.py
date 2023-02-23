@@ -13,9 +13,11 @@ from highway_env.vehicle.behavior import IDMVehicle
 class RacetrackEnv(AbstractEnv):
     """
     A continuous control environment.
+
     The agent needs to learn two skills:
     - follow the tracks
     - avoid collisions with other vehicles
+
     Credits and many thanks to @supperted825 for the idea and initial implementation.
     See https://github.com/eleurent/highway-env/issues/231
     """
@@ -26,14 +28,13 @@ class RacetrackEnv(AbstractEnv):
         config.update({
             "observation": {
                 "type": "OccupancyGrid",
-                "features": ['presence', 'on_road'],
+                "features": ['presence'],
                 "grid_size": [[-18, 18], [-18, 18]],
                 "grid_step": [3, 3],
                 "as_image": False,
                 "align_to_vehicle_axes": True
             },
-
-            "action": {
+             "action": {
                 "type": "ContinuousAction",
                 "longitudinal": True,
                 "lateral": True,
@@ -42,18 +43,12 @@ class RacetrackEnv(AbstractEnv):
             "simulation_frequency": 15,
             "policy_frequency": 5,
             "duration": 300,
-
-            #Reward default parameters
-            "collision_reward": -1.5,
+            "collision_reward": -1,
             "lane_centering_cost": 4,
-            "lane_centering_reward": 1.5,
-            "target_speed": 5,
-            "high_speed_reward": 1.5,
-            "action_reward": -0.5,
-            
-
+            "lane_centering_reward": 1,
+            "action_reward": -0.3,
             "controlled_vehicles": 1,
-            "other_vehicles": 3,
+            "other_vehicles": 0,
             "screen_width": 600,
             "screen_height": 600,
             "centering_position": [0.5, 0.5],
@@ -64,28 +59,25 @@ class RacetrackEnv(AbstractEnv):
         rewards = self._rewards(action)
         reward = sum(self.config.get(name, 0) * reward for name, reward in rewards.items())
         reward = utils.lmap(reward, [self.config["collision_reward"], 1], [0, 1])
+        if (rewards["on_road_reward"]):
+            reward += 1
         reward *= rewards["on_road_reward"]
+        
         return reward
 
     def _rewards(self, action: np.ndarray) -> Dict[Text, float]:
         _, lateral = self.vehicle.lane.local_coordinates(self.vehicle.position)
-
         # from highway env: Use forward speed rather than speed, see https://github.com/eleurent/highway-env/issues/268
-        forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
+        #forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
         #use x(1-x) type rwd fx
-        speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
-
-        dico =  {
+        #speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
+        
+        return {
             "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": self.vehicle.crashed,
-            #"high_speed_reward": np.clip(speed_rwd, -1, 1),
             "on_road_reward": self.vehicle.on_road,
         }
-        #print(type(action[0]))
-        # if(action[0] < 0):
-        #     dico['action_reward'] = 0
-        return dico
 
     def _is_terminated(self) -> bool:
         return self.vehicle.crashed or self.time >= self.config["duration"]
@@ -222,10 +214,11 @@ class RacetrackEnv(AbstractEnv):
                                               high=self.road.network.get_lane(("b", "c", 0)).length
                                           ),
                                           speed=6+rng.uniform(high=3))
-        #self.road.vehicles.append(vehicle)
-
+        self.road.vehicles.append(vehicle)
+       
         # Other vehicles
         while len(self.road.vehicles) < self.config["other_vehicles"] + 1:
+            
             random_lane_index = self.road.network.random_lane_index(rng)
             vehicle = IDMVehicle.make_on_lane(self.road, random_lane_index,
                                               longitudinal=rng.uniform(
