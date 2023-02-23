@@ -75,13 +75,17 @@ class RacetrackEnv(AbstractEnv):
         #use x(1-x) type rwd fx
         speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
 
-        return {
+        dico =  {
             "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": self.vehicle.crashed,
-            "high_speed_reward": np.clip(speed_rwd, -1, 1),
+            #"high_speed_reward": np.clip(speed_rwd, -1, 1),
             "on_road_reward": self.vehicle.on_road,
         }
+        #print(type(action[0]))
+        # if(action[0] < 0):
+        #     dico['action_reward'] = 0
+        return dico
 
     def _is_terminated(self) -> bool:
         return self.vehicle.crashed or self.time >= self.config["duration"]
