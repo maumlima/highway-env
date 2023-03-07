@@ -44,16 +44,16 @@ class RacetrackEnv(AbstractEnv):
             "duration": 300,
 
             #Reward default parameters
-            "collision_reward": -4,
+            "collision_reward": -8,
             "lane_centering_cost": 4,
             "lane_centering_reward": 1.5,
-            "target_speed": 5,
+            "target_speed": 4,
             "high_speed_reward": 1.5,
-            "action_reward": -0.5,
+            "action_reward": -0.4,
             
 
             "controlled_vehicles": 1,
-            "other_vehicles": 4,
+            "other_vehicles": 6,
             "screen_width": 600,
             "screen_height": 600,
             "centering_position": [0.5, 0.5],
@@ -72,6 +72,7 @@ class RacetrackEnv(AbstractEnv):
 
         # from highway env: Use forward speed rather than speed, see https://github.com/eleurent/highway-env/issues/268
         forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
+
         #use x(1-x) type rwd fx
         speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
 
