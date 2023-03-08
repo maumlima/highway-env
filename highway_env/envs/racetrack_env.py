@@ -44,13 +44,13 @@ class RacetrackEnv(AbstractEnv):
             "duration": 300,
 
             #Reward default parameters
-            "collision_reward": -6,
+            "collision_reward": -5,
             "lane_centering_cost": 5,
-            "lane_centering_reward": 1.5,
-            "target_speed": 5,
+            "lane_centering_reward": 1.7,
+            "target_speed": 6,
             "high_speed_reward": 2,
             "immobile_cost": 1,
-            "action_reward": -0.2,
+            "action_reward": -0.1,
             
 
             "controlled_vehicles": 1,
