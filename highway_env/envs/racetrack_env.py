@@ -49,6 +49,7 @@ class RacetrackEnv(AbstractEnv):
             "lane_centering_reward": 1.5,
             "target_speed": 5,
             "high_speed_reward": 2,
+            "immobile_cost": 1,
             "action_reward": -0.2,
             
 
@@ -73,14 +74,20 @@ class RacetrackEnv(AbstractEnv):
         # from highway env: Use forward speed rather than speed, see https://github.com/eleurent/highway-env/issues/268
         forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
 
+        immobile_cost = 0
+
+        if forward_speed < 0.1:
+            immobile_cost = 1
+
         #use x(1-x) type rwd fx
-        speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed-0.5) 
+        speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
 
         dico =  {
             "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": self.vehicle.crashed,
             "high_speed_reward": np.clip(speed_rwd, -1, 1),
+            "immobile_cost": immobile_cost,
             "on_road_reward": self.vehicle.on_road,
         }
         #print(type(action[0]))
