@@ -45,16 +45,16 @@ class RacetrackEnv(AbstractEnv):
 
             #Reward default parameters
             "collision_reward": -6,
-            "lane_centering_cost": 3,
-            "lane_centering_reward": 1.5,
+            "lane_centering_cost": 4,
+            "lane_centering_reward": 1.6,
             "target_speed": 6,
             "high_speed_reward": 2,
-            "immobile_cost": 0.5,
+            "immobile_cost": 0.4,
             "action_reward": -0.1,
             
 
             "controlled_vehicles": 1,
-            "other_vehicles": 7,
+            "other_vehicles": 6,
             "screen_width": 600,
             "screen_height": 600,
             "centering_position": [0.5, 0.5],
