@@ -47,9 +47,10 @@ class RacetrackEnv(AbstractEnv):
             "collision_reward": -6,
             "lane_centering_cost": 4,
             "lane_centering_reward": 1.6,
-            "target_speed": 6,
+            "off_road_reward": -2,
+            "target_speed": 5,
             "high_speed_reward": 2,
-            "immobile_cost": 0.4,
+            "immobile_cost": 0.6,
             "action_reward": -0.1,
             
 
@@ -66,6 +67,7 @@ class RacetrackEnv(AbstractEnv):
         reward = sum(self.config.get(name, 0) * reward for name, reward in rewards.items())
         reward = utils.lmap(reward, [self.config["collision_reward"], 1], [0, 1])
         reward *= rewards["on_road_reward"]
+        reward += rewards["off_road_reward"]*self.config["off_road_reward"]
         return reward
 
     def _rewards(self, action: np.ndarray) -> Dict[Text, float]:
@@ -74,10 +76,10 @@ class RacetrackEnv(AbstractEnv):
         # from highway env: Use forward speed rather than speed, see https://github.com/eleurent/highway-env/issues/268
         forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
 
-        immobile_cost = 0
-
         if forward_speed < 0.1:
             immobile_cost = 1
+        else:
+            immobile_cost = 0
 
         #use x(1-x) type rwd fx
         speed_rwd = (1/(self.config["target_speed"])**2)*( 2*self.config["target_speed"] - forward_speed ) * (forward_speed) 
@@ -89,6 +91,7 @@ class RacetrackEnv(AbstractEnv):
             "high_speed_reward": np.clip(speed_rwd, -1, 1),
             "immobile_cost": immobile_cost,
             "on_road_reward": self.vehicle.on_road,
+            "off_road_reward": not self.vehicle.on_road,
         }
         #print(type(action[0]))
         # if(action[0] < 0):
